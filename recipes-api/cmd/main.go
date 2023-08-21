@@ -1,5 +1,5 @@
 // TODO: get env variable from .env file: https://github.com/joho/godotenv
-// MONGO_URI="mongodb://admin:password@localhost:27017/test?authSource=admin" MONGO_DATABASE=demo X_API_KEY=apikey go run main.go
+// MONGO_URI="mongodb://admin:password@localhost:27017/test?authSource=admin" MONGO_DATABASE=demo REDIS_URL=127.0.0.1:6379 CORS_ORIGIN=http://localhost:3000 X_API_KEY=apikey go run main.go
 // MONGO_URI="mongodb://admin:password@localhost:27017/test?authSource=admin" MONGO_DATABASE=demo JWT_SECRET=eUbP9shywUygMx7u go run main.go
 
 package main
@@ -10,7 +10,6 @@ import (
 	"log"
 	"os"
 	"recipes-api/internal/handlers"
-	"time"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -43,7 +42,7 @@ func init() {
 
 	// connect to redis
 	redisClient := redis.NewClient(&redis.Options{
-		Addr:     "localhost:6379",
+		Addr:     os.Getenv("REDIS_URI"),
 		Password: "",
 		DB:       0,
 	})
@@ -68,15 +67,16 @@ func init() {
 func main() {
 	r := gin.Default()
 	// CORS
-	r.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"http://localhost:3000"},
-		AllowMethods:     []string{"GET", "OPTIONS"},
-		AllowHeaders:     []string{"Origin", "Content-Type", "X-API-KEY"},
-		ExposeHeaders:    []string{"Content-Length"},
-		AllowCredentials: true,
-		MaxAge:           12 * time.Hour,
-	}))
+	// r.Use(cors.New(cors.Config{
+	// 	AllowOrigins:     []string{os.Getenv("CORS_ORIGIN")},
+	// 	AllowMethods:     []string{"GET", "OPTIONS"},
+	// 	AllowHeaders:     []string{"Origin", "Content-Type", "X-API-KEY"},
+	// 	ExposeHeaders:    []string{"Content-Length"},
+	// 	AllowCredentials: true,
+	// 	MaxAge:           12 * time.Hour,
+	// }))
 
+	r.Use(cors.Default())
 	r.GET("/recipes", recipesHandler.ListRecipesHandler)
 	r.POST("/recipes", recipesHandler.NewRecipeHandler)
 	r.PUT("/recipes/:id", recipesHandler.UpdateRecipesHandler)

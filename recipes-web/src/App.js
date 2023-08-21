@@ -3,6 +3,7 @@ import './App.css';
 import Recipe from './Recipe';
 
 
+
 class App extends React.Component {
   constructor(props) {
     super(props)
@@ -23,7 +24,9 @@ class App extends React.Component {
   }
 
   async getRecipes() {
-    return fetch('http://localhost:8080/recipes', {
+    const API_URL = process.env.REACT_APP_API_URL;
+    console.log("API_URL:", API_URL)
+    return fetch(API_URL, {
       method: 'GET',
       headers: {
         'Accept': 'application/json',
